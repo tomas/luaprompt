@@ -63,7 +63,7 @@
 static char *readline(char *prompt)
 {
     char *line = NULL;
-    int k;
+    int k = 0;
 
     line = malloc (MAXINPUT);
 
@@ -71,6 +71,7 @@ static char *readline(char *prompt)
     fflush(stdout);
 
     if (!fgets(line, MAXINPUT, stdin)) {
+        free(line);
         return NULL;
     }
 
