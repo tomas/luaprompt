@@ -5,15 +5,30 @@ LIBDIR = $(PREFIX)/lib/lua/${VERSION}
 MANDIR = $(PREFIX)/man
 MAN1DIR = $(MANDIR)/man1
 
-# Modify these as needed, if there are missing header files or
-# libraries.
+# uncomment this to disable LuaJIT or readline
+USE_LUAJIT = 1
+# USE_READLINE = 1
 
-LUA_CFLAGS = $(shell pkg-config --cflags lua${VERSION})
-LUA_LDFLAGS = $(shell pkg-config --libs-only-L lua${VERSION})
+READLINE_CFLAGS = -DHAVE_LIBREADLINE -DHAVE_READLINE_READLINE_H -DHAVE_READLINE_HISTORY -DHAVE_READLINE_HISTORY_H
+READLINE_LIBS = -lreadline -lhistory
 
-CFLAGS = -g -fPIC
+LUA_ARCHIVE = /usr/lib/libluajit-5.1.a
+LUA_ARCHIVE = /usr/lib/x86_64-linux-gnu/libluajit-5.1.a
+
+CFLAGS = -g -fPIC -D_GNU_SOURCE $(READLINE_CFLAGS) -DHAVE_ASPRINTF
 CFLAGS += -Wall -Wextra -Wno-unused-parameter -DHAVE_ASPRINTF
-CFLAGS += -DHAVE_LIBREADLINE -DHAVE_READLINE_HISTORY -D_GNU_SOURCE
+
+# osx fix
+CFLAGS += -I/usr/local/opt/readline/include -L/usr/local/opt/readline/lib
+
+ifdef USE_LUAJIT
+	LUA_CFLAGS  = $(shell pkg-config --cflags luajit)
+	LUA_LDFLAGS = $(shell pkg-config --libs luajit)
+	CFLAGS += -DLUAP_LUAJIT=1 -I/usr/include/luajit-2.0
+else # regular lua
+	LUA_CFLAGS = $(shell pkg-config --cflags lua${VERSION})
+	LUA_LDFLAGS = $(shell pkg-config --libs-only-L lua${VERSION})
+endif
 
 # Comment out the following to suppress completion of certain kinds of
 # symbols.
@@ -29,7 +44,7 @@ CFLAGS += -DCOMPLETE_FILE_NAMES   # File names.
 # enabled each returned value, that is, each value the prompt prints
 # out, is also added to a table for future reference.
 
-CFLAGS += '-DSAVE_RESULTS'
+# CFLAGS += '-DSAVE_RESULTS'
 
 # The name of the table holding the results can be configured below.
 
@@ -77,30 +92,25 @@ CFLAGS += '-DRESULTS_TABLE_NAME="_"'
 
 # CFLAGS += -DCONFIRM_MODULE_LOAD
 
-LDFLAGS=-lreadline -lhistory
-INSTALL=/usr/bin/install
+LDFLAGS := ${LDFLAGS} $(READLINE_LIBS)
+INSTALL  = /usr/bin/install
 
-all: prompt.so
+all: lp
 
-prompt.so: module.c prompt.c prompt.h
-	$(CC) -o prompt.so -shared ${CFLAGS} ${LUA_CFLAGS} module.c prompt.c ${LDFLAGS} ${LUA_LDFLAGS}
+lp: lp.c prompt.c prompt.h
+	$(CC) -o lp ${CFLAGS} ${LUA_CFLAGS} lp.c prompt.c ${DEFS} ${LDFLAGS} ${LUA_LDFLAGS}
 
-dist: luap
-	if [ -e /tmp/prompt ]; then rm -rf /tmp/prompt; fi
-	mkdir /tmp/prompt
-	cp luap.c Makefile prompt.c prompt.h README ChangeLog /tmp/prompt
-	cd /tmp; tar zcf luaprompt.tar.gz prompt/
+static: lp.c prompt.c prompt.h
+	$(CC) -static -o lp ${CFLAGS} ${LUA_CFLAGS} lp.c prompt.c ${DEFS} ${LUA_ARCHIVE} ${LDFLAGS} ${LUA_LDFLAGS}
 
-install: prompt.so
+install:lp
 	mkdir -p $(BINDIR)
-	$(INSTALL) luap.lua $(BINDIR)/luap
-	mkdir -p $(LIBDIR)
-	$(INSTALL) -m 644 prompt.so $(LIBDIR)/prompt.so
-	mkdir -p $(MAN1DIR)
-	$(INSTALL) -m 644 luap.1 $(MAN1DIR)/luap.1
+	$(INSTALL) lp $(BINDIR)/lp
+	# mkdir -p $(MAN1DIR)
+	# $(INSTALL) -m 644 lp.1 $(MAN1DIR)/lp.1
 
 uninstall:
-	rm -f $(BINDIR)/luap $(LIBDIR)/prompt.so $(MAN1DIR)/luap.1
+	rm -f $(BINDIR)/lp $(MAN1DIR)/lp.1
 
 clean:
-	rm -f prompt.so *~
+	rm -f lp *~
