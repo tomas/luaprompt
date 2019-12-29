@@ -7,10 +7,10 @@ MAN1DIR = $(MANDIR)/man1
 
 # uncomment this to disable LuaJIT or readline
 USE_LUAJIT = 1
-# USE_READLINE = 1
+USE_READLINE = 1
 
 READLINE_CFLAGS = -DHAVE_LIBREADLINE -DHAVE_READLINE_READLINE_H -DHAVE_READLINE_HISTORY -DHAVE_READLINE_HISTORY_H
-READLINE_LIBS = -lreadline -lhistory
+READLINE_LIBS = -lreadline -lhistory -ltinfo -lncurses -lm -ldl
 
 LUA_ARCHIVE = /usr/lib/libluajit-5.1.a
 LUA_ARCHIVE = /usr/lib/x86_64-linux-gnu/libluajit-5.1.a
