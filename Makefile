@@ -24,7 +24,7 @@ CFLAGS += -I/usr/local/opt/readline/include -L/usr/local/opt/readline/lib
 ifdef USE_LUAJIT
 	LUA_CFLAGS  = $(shell pkg-config --cflags luajit)
 	LUA_LDFLAGS = $(shell pkg-config --libs luajit)
-	CFLAGS += -DLUAP_LUAJIT=1 -I/usr/include/luajit-2.0
+	CFLAGS += -DLUAP_LUAJIT=1 -I/usr/include/luajit-2.0 -I/data/data/com.termux/files/usr/include/luajit-2.0
 else # regular lua
 	LUA_CFLAGS = $(shell pkg-config --cflags lua${VERSION})
 	LUA_LDFLAGS = $(shell pkg-config --libs-only-L lua${VERSION})
@@ -94,6 +94,11 @@ CFLAGS += '-DRESULTS_TABLE_NAME="_"'
 
 LDFLAGS := ${LDFLAGS} $(READLINE_LIBS)
 INSTALL  = /usr/bin/install
+
+# if building within termux, include android libc
+ifneq (${ANDROID_DATA},'')
+  LDFLAGS += -landroid-glob
+endif
 
 all: lp
 
