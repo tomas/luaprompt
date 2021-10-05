@@ -96,7 +96,7 @@ LDFLAGS := ${LDFLAGS} $(READLINE_LIBS)
 INSTALL  = /usr/bin/install
 
 # if building within termux, include android libc
-ifneq (${ANDROID_DATA},'')
+ifdef ANDROID_DATA
   LDFLAGS += -landroid-glob
 endif
 
