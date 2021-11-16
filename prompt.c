@@ -1606,10 +1606,12 @@ void luap_enter(lua_State *L)
         /* We arrived here through siglongjmp, after receiving a
          * sigint.  Prepare to resume reading a new command. */
 
+#ifdef HAVE_LIBREADLINE
         rl_cleanup_after_signal ();
 
         print_output ("\n");
         rl_on_new_line();
+#endif
 
         incomplete = 0;
     }
