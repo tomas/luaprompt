@@ -92,8 +92,12 @@ CFLAGS += '-DRESULTS_TABLE_NAME="_"'
 
 # CFLAGS += -DCONFIRM_MODULE_LOAD
 
-LDFLAGS := ${LDFLAGS} $(READLINE_LIBS)
+LDFLAGS := ${LDFLAGS}
 INSTALL  = /usr/bin/install
+
+ifdef USE_READLINE
+  LDFLAGS += $(READLINE_LIBS)
+endif
 
 # if building within termux, include android libc
 ifdef ANDROID_DATA
