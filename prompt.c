@@ -1033,6 +1033,21 @@ static void dump_string (const char *s, int n)
     column += l;
 }
 
+// from https://stackoverflow.com/a/47117431
+static char *strremove(char *str, const char *sub) {
+    char *p, *q, *r;
+    if (*sub && (q = r = strstr(str, sub)) != NULL) {
+        size_t len = strlen(sub);
+        while ((r = strstr(p = r + len, sub)) != NULL) {
+            while (p < r)
+                *q++ = *p++;
+        }
+        while ((*q++ = *p++) != '\0')
+            continue;
+    }
+    return str;
+}
+
 static void describe (lua_State *L, int index)
 {
     char *s;
@@ -1680,6 +1695,13 @@ void luap_enter(lua_State *L)
             lua_pop (L, 1);
 
             /* Try to execute the line as-is. */
+
+            if (strstr(buffer, "local function") != NULL) {
+                /* remove the 'local' part so we can actually access it */
+                strremove(buffer, "local ");
+                s = strlen (buffer);
+                // printf("line: %s (%d)\n", buffer, strlen(buffer));
+            }
 
             status = luaL_loadbuffer(L, buffer, s, chunkname);
 
