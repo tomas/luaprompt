@@ -56,8 +56,8 @@ static void greet()
 {
   fprintf(stdout, "%s" "luap " LUAP_VERSION " -- " COPYRIGHT "%s\n"
           "(c) 2012-2015 Dimitris Papavasiliou, Boris Nagaev\n"
-          "(c) 2019-2020 Tomas Pollak (forkhq.com)\n\n"
-          "%s" "Welcome back, master." "%s",
+          "(c) 2019-2023 Tomas Pollak (forkhq.com)\n\n"
+          "%s" "Welcome back!" "%s",
           colorize ? "\033[1m" : "",
           colorize ? "\033[0m" : "",
           colorize ? "\033[1m" : "",
